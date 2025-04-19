@@ -111,7 +111,7 @@ and analyze groups of slices. Guide the user through the analysis process step b
                     },
                     {
                         "name": "display_slices",
-                        "description": "Display DICOM slices from a directory and extract metadata",
+                        "description": "Display DICOM slices from a directory",
                         "input_schema": {
                             "type": "object",
                             "properties": {
@@ -123,10 +123,14 @@ and analyze groups of slices. Guide the user through the analysis process step b
                                     "type": "string", 
                                     "description": "Number of rows in the display"
                                 },
-                                "columns": {
+                                "cols": {
                                     "type": "string", 
-                                    "description": "Number of comlums in the display"
-                                }
+                                    "description": "Number of columns in the display"
+                                },
+                                "figsize": {
+                                    "type": "string", 
+                                    "description": "A tuple of the number of rows and columns in the display"
+                                },
                             },
                             "required": ["directory_path"]
                         }
@@ -260,8 +264,8 @@ and analyze groups of slices. Guide the user through the analysis process step b
                 
                 print(f"Executing tool: {tool_name} with args: {tool_args}")
                 
-                # Call the function with progress callback
-                result = handle_tool_call(tool_name, progress_callback=update_progress, **tool_args)
+                # Call the function 
+                result = handle_tool_call(tool_name, **tool_args)
                 
                 # Log tool result
                 self.logger.info(f"Tool Result: {json.dumps(result, indent=2)}")

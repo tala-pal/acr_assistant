@@ -6,6 +6,7 @@ from PIL import Image
 import io
 import base64
 import time
+from math import ceil
 
 def load_dicom_directory(directory_path, progress_callback=None):
     """
@@ -207,7 +208,7 @@ def read_dicom_headers(directory_path):
             "message": f"Error when extracting DICOM headers: {str(e)}"
         }
 
-def display_slices(directory_path, rows=10, cols=10, figsize=(10, 10), max_images_per_page=100):
+def display_slices(directory_path, rows=10, cols=10, figsize=(10, 10)):
     """
     Display multiple DICOM slicds in a grid layout with navigation between pages.
     
@@ -495,6 +496,8 @@ def handle_tool_call(tool_name, **kwargs):
     """
     tools = {
         "load_dicom_directory": load_dicom_directory,
+        "read_dicom_headers": read_dicom_headers,
+        "display_slices": display_slices,
         "analyze_phantom_slice": analyze_phantom_slice,
         "analyze_phantom_group": analyze_phantom_group
     }
