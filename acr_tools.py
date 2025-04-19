@@ -20,13 +20,13 @@ def load_dicom_directory(directory_path, progress_callback=None):
     """
     print(f"load_dicom_directory called with progress_callback: {progress_callback is not None}")
     try:
-        if progress_callback:
-            progress_callback(f"Starting to scan directory: {directory_path}", 0)
+        #if progress_callback:
+        #    progress_callback(f"Starting to scan directory: {directory_path}", 0)
             
         # Check if directory exists
         if not os.path.exists(directory_path):
-            if progress_callback:
-                progress_callback(f"Error: Directory not found: {directory_path}", -1)
+            #if progress_callback:
+            #    progress_callback(f"Error: Directory not found: {directory_path}", -1)
                 
             return {
                 "status": "error",
@@ -38,12 +38,12 @@ def load_dicom_directory(directory_path, progress_callback=None):
             if file.endswith('.dcm'):
                 dicom_files.append(os.path.join(directory_path, file))
                 # Update progress more frequently for better feedback
-                if progress_callback and len(dicom_files) % 10 == 0:
-                    progress_callback(f"Found {len(dicom_files)} DICOM files so far...", 40)
+                #if progress_callback and len(dicom_files) % 10 == 0:
+                #    progress_callback(f"Found {len(dicom_files)} DICOM files so far...", 40)
                 
         if not dicom_files:
-            if progress_callback:
-                progress_callback(f"Error: No DICOM files found in {directory_path}", -1)
+            #if progress_callback:
+            #    progress_callback(f"Error: No DICOM files found in {directory_path}", -1)
                 
             return {
                 "status": "error",
@@ -54,24 +54,24 @@ def load_dicom_directory(directory_path, progress_callback=None):
         dicom_files.sort()
         
         # Read the first file to get metadata
-        if progress_callback:
-            progress_callback(f"Reading metadata from first file: {os.path.basename(dicom_files[0])}", 60)
+        #if progress_callback:
+        #    progress_callback(f"Reading metadata from first file: {os.path.basename(dicom_files[0])}", 60)
             
         try:
             first_dicom = pydicom.dcmread(dicom_files[0])
-            if progress_callback:
-                progress_callback("Successfully read first DICOM file", 80)
+            #if progress_callback:
+            #    progress_callback("Successfully read first DICOM file", 80)
         except Exception as e:
-            if progress_callback:
-                progress_callback(f"Error reading first DICOM file: {str(e)}", -1)
+            #if progress_callback:
+            #    progress_callback(f"Error reading first DICOM file: {str(e)}", -1)
             return {
                 "status": "error",
                 "message": f"Error reading first DICOM file: {str(e)}"
             }
         
         # Extract metadata
-        if progress_callback:
-            progress_callback("Extracting common metadata", 90)
+        #if progress_callback:
+        #    progress_callback("Extracting common metadata", 90)
             
         try:
             scan_date = first_dicom.StudyDate if hasattr(first_dicom, 'StudyDate') else "Unknown"
@@ -85,18 +85,18 @@ def load_dicom_directory(directory_path, progress_callback=None):
             columns = first_dicom.Columns if hasattr(first_dicom, 'Columns') else 0
             image_dimensions = f"{rows}x{columns}"
             
-            if progress_callback:
-                progress_callback(f"Extracted metadata: {rows}x{columns}, {slice_thickness}mm slices", 95)
+            #if progress_callback:
+            #    progress_callback(f"Extracted metadata: {rows}x{columns}, {slice_thickness}mm slices", 95)
         except Exception as e:
-            if progress_callback:
-                progress_callback(f"Error extracting metadata: {str(e)}", -1)
+            #if progress_callback:
+            #    progress_callback(f"Error extracting metadata: {str(e)}", -1)
             return {
                 "status": "error",
                 "message": f"Error extracting metadata: {str(e)}"
             }
         
-        if progress_callback:
-            progress_callback("Building results", 99)
+        #if progress_callback:
+        #    progress_callback("Building results", 99)
             
         # Create result dictionary
         result = {
@@ -112,8 +112,8 @@ def load_dicom_directory(directory_path, progress_callback=None):
             "file_paths": dicom_files
         }
         
-        if progress_callback:
-            progress_callback("Complete! Ready for analysis.", 100)
+        #if progress_callback:
+        #    progress_callback("Complete! Ready for analysis.", 100)
             
         return result
         
