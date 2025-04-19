@@ -1,0 +1,15 @@
+# Core requirements for ACR Phantom Analysis Tool
+
+# Claude API client
+anthropic
+
+# DICOM handling
+pydicom
+
+# Data processing and visualization
+numpy
+matplotlib
+Pillow
+
+# For the CLI application
+# No additional requirements beyond Python standard library
