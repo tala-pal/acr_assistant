@@ -96,14 +96,36 @@ and analyze groups of slices. Guide the user through the analysis process step b
                 messages=self.messages,
                 tools=[
                     {
-                        "name": "load_dicom_directory",
-                        "description": "Load DICOM files from a directory and extract metadata",
+                        "name": "read_dicom_headers",
+                        "description": "Read DICOM headers from the DICOM files that are in a directory and extract dicom tags",
                         "input_schema": {
                             "type": "object",
                             "properties": {
                                 "directory_path": {
                                     "type": "string", 
                                     "description": "Path to directory containing DICOM files"
+                                }
+                            },
+                            "required": ["directory_path"]
+                        }
+                    },
+                    {
+                        "name": "display_slices",
+                        "description": "Display DICOM slices from a directory and extract metadata",
+                        "input_schema": {
+                            "type": "object",
+                            "properties": {
+                                "directory_path": {
+                                    "type": "string", 
+                                    "description": "Path to directory containing DICOM files"
+                                },
+                                "rows": {
+                                    "type": "string", 
+                                    "description": "Number of rows in the display"
+                                },
+                                "columns": {
+                                    "type": "string", 
+                                    "description": "Number of comlums in the display"
                                 }
                             },
                             "required": ["directory_path"]

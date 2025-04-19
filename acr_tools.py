@@ -126,6 +126,171 @@ def load_dicom_directory(directory_path, progress_callback=None):
             "message": f"Error loading DICOM files: {str(e)}"
         }
 
+def read_dicom_headers(directory_path):
+    """
+    Load DICOM files from a directory and extract its headers
+    
+    Args:
+        directory_path: Path to directory containing DICOM files
+        
+    Returns:
+        Dictionary with headers and file paths
+    """
+    try:
+        # Check if directory exists
+        if not os.path.exists(directory_path):
+            return {
+                "status": "error",
+                "message": f"Directory not found: {directory_path}"
+            }
+                        
+        dicom_files = []
+        for file in os.listdir(directory_path):
+            if file.endswith('.dcm'):
+                dicom_files.append(os.path.join(directory_path, file))
+                
+        if not dicom_files:
+            return {
+                "status": "error",
+                "message": f"No DICOM files found in {directory_path}"
+            }
+            
+        # Sort files by name to ensure they're in the correct order
+        dicom_files.sort()
+        
+        # Read the first file to get metadata
+        try:
+            first_dicom = pydicom.dcmread(dicom_files[0])
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Error reading first DICOM file: {str(e)}"
+            }
+        
+        # Extract metadata
+        try:
+            scan_date = first_dicom.StudyDate if hasattr(first_dicom, 'StudyDate') else "Unknown"
+            slice_thickness = first_dicom.SliceThickness if hasattr(first_dicom, 'SliceThickness') else 0
+            
+            # Calculate number of slices for a 1cm thickness (used in ACR analysis)
+            slices_for_1cm = round(10 / slice_thickness) if slice_thickness > 0 else 0
+            
+            # Get image dimensions
+            rows = first_dicom.Rows if hasattr(first_dicom, 'Rows') else 0
+            columns = first_dicom.Columns if hasattr(first_dicom, 'Columns') else 0
+            image_dimensions = f"{rows}x{columns}"
+            
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Error extracting metadata: {str(e)}"
+            }
+        
+        # Create result dictionary
+        result = {
+            "status": "success",
+            "message": f"Successfully loaded {len(dicom_files)} DICOM files",
+            "tags": {
+                "scan_date": scan_date,
+                "slice_thickness": slice_thickness,
+                "num_slices": len(dicom_files),
+                "image_dimensions": image_dimensions,
+                "slices_for_1cm": slices_for_1cm
+            }
+        }
+        
+        return result
+        
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Error when extracting DICOM headers: {str(e)}"
+        }
+
+def display_slices(directory_path, rows=10, cols=10, figsize=(10, 10), max_images_per_page=100):
+    """
+    Display multiple DICOM slicds in a grid layout with navigation between pages.
+    
+    Parameters:
+    -----------
+    dicom_dir : str
+        Path to directory containing DICOM files
+    rows : int
+        Number of rows in the grid
+    cols : int
+        Number of columns in the grid
+    figsize : tuple
+        Figure size (width, height) in inches
+    max_images_per_page : int
+        Maximum number of images to display per page
+    """
+    try:
+        # Check if directory exists
+        if not os.path.exists(directory_path):
+            return {
+                "status": "error",
+                "message": f"Directory not found: {directory_path}"
+            }
+                        
+        dicom_files = []
+        for file in os.listdir(directory_path):
+            if file.endswith('.dcm'):
+                dicom_files.append(os.path.join(directory_path, file))
+                
+        if not dicom_files:
+            return {
+                "status": "error",
+                "message": f"No DICOM files found in {directory_path}"
+            }
+            
+        # Sort files by name to ensure they're in the correct order
+        dicom_files.sort()
+
+        total_images = len(dicom_files)
+        print(f"Found {total_images} DICOM files")
+        
+        # Calculate number of pages needed
+        images_per_figure = rows * cols
+        n_figures = ceil(total_images / images_per_figure)
+            
+        print(f"Found {total_images} images. Will create {n_figures} figures with {rows}x{cols} grid.")
+            
+        # Create figures
+        for fig_idx in range(n_figures):
+            fig, axes = plt.subplots(rows, cols, figsize=figsize)
+            axes = axes.flatten()
+                
+            # Fill the grid with images
+            for i in range(images_per_figure):
+                img_idx = fig_idx * images_per_figure + i
+                    
+                if img_idx < total_images:
+                    try:
+                        img_path = dicom_files[img_idx]
+                        ds = pydicom.dcmread(img_path)
+                        # Get pixel data and display it
+                        pixel_array = ds.pixel_array
+                        axes[i].imshow(pixel_array, cmap='gray')
+                        axes[i].set_title(f"{img_idx}", fontsize=8)
+                    except Exception as e:
+                        print(f"Error loading {dicom_files[img_idx]}: {e}")
+                        axes[i].text(0.5, 0.5, f"Error loading\n{os.path.basename(img_path)}", 
+                                    ha='center', va='center', color='red')
+                
+                # Turn off axis for all subplots
+                axes[i].axis('off')
+                
+            plt.tight_layout()
+            plt.suptitle(f"Images {fig_idx*images_per_figure+1}-{min((fig_idx+1)*images_per_figure, total_images)}", 
+                        fontsize=16, y=1.02)
+            plt.show()
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Error when displaying slices: {str(e)}"
+        }
+
 def analyze_phantom_slice(file_path, display_figures=True, progress_callback=None):
     """
     Analyze a single ACR phantom slice
