@@ -203,11 +203,7 @@ def analyze_phantom_slice(file_path, display_figures=True, progress_callback=Non
                 "std": float(std_val)
             }
         }
-        
-        # Add figure data if available
-        if figure_data:
-            result["figure"] = figure_data
-            
+
         if progress_callback:
             progress_callback("Complete", 100)
             
@@ -305,10 +301,6 @@ def analyze_phantom_group(file_paths, display_figures=True, progress_callback=No
             },
             "num_slices": len(file_paths)
         }
-        
-        # Add figure data if available
-        if figure_data:
-            result["figure"] = figure_data
             
         if progress_callback:
             progress_callback("Complete", 100)
