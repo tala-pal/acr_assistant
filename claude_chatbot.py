@@ -120,17 +120,26 @@ and analyze groups of slices. Guide the user through the analysis process step b
                                     "description": "Path to directory containing DICOM files"
                                 },
                                 "rows": {
-                                    "type": "string", 
-                                    "description": "Number of rows in the display"
+                                    "type": "integer", 
+                                    "description": "Number of rows in the display",
+                                    "default": 10
                                 },
                                 "cols": {
-                                    "type": "string", 
-                                    "description": "Number of columns in the display"
+                                    "type": "integer", 
+                                    "description": "Number of columns in the display",
+                                    "default": 10
                                 },
                                 "figsize": {
-                                    "type": "string", 
-                                    "description": "A tuple of the number of rows and columns in the display"
-                                },
+                                    "type": "array",
+                                    "items": {
+                                        "type": 
+                                        "number"
+                                    },
+                                    "description": "A tuple of width and height (in inches) for the figure size",
+                                    "minItems": 2,
+                                    "maxItems": 2,
+                                    "default": [10, 10]
+                                }
                             },
                             "required": ["directory_path"]
                         }
