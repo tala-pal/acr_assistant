@@ -96,8 +96,8 @@ and analyze groups of slices. Guide the user through the analysis process step b
                 messages=self.messages,
                 tools=[
                     {
-                        "name": "read_dicom_headers",
-                        "description": "Read DICOM headers from the DICOM files that are in a directory and extract dicom tags",
+                        "name": "load_dicom_directory",
+                        "description": "Load DICOM files from a directory and extract metadata",
                         "input_schema": {
                             "type": "object",
                             "properties": {
