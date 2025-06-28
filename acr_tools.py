@@ -127,6 +127,7 @@ def load_dicom_directory(directory_path, progress_callback=None):
             "message": f"Error loading DICOM files: {str(e)}"
         }
 
+'''
 def read_dicom_headers(directory_path):
     """
     Load DICOM files from a directory and extract its headers
@@ -207,6 +208,7 @@ def read_dicom_headers(directory_path):
             "status": "error",
             "message": f"Error when extracting DICOM headers: {str(e)}"
         }
+'''
 
 def display_slices(directory_path, rows=10, cols=10, figsize=(10, 10)):
     """
@@ -496,7 +498,7 @@ def handle_tool_call(tool_name, **kwargs):
     """
     tools = {
         "load_dicom_directory": load_dicom_directory,
-        "read_dicom_headers": read_dicom_headers,
+        #"read_dicom_headers": read_dicom_headers,
         "display_slices": display_slices,
         "analyze_phantom_slice": analyze_phantom_slice,
         "analyze_phantom_group": analyze_phantom_group
@@ -514,7 +516,7 @@ def handle_tool_call(tool_name, **kwargs):
 if __name__ == "__main__":
     # Path to your test DICOM file
     dir_path = "/Users/Tala/Documents/ACR/012025"  # Replace with your actual file path
-    dir_path = "/Users/tamir/Downloads/dicom/012025"  # Replace with your actual file path
+    dir_path = "/Users/tamir/workspace/acr_assistant/012025"  # Replace with your actual file path
     
     # Run the function
     result = load_dicom_directory(dir_path)
