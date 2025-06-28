@@ -294,6 +294,7 @@ def display_slices(directory_path, rows=10, cols=10, figsize=(10, 10)):
             "message": f"Error when displaying slices: {str(e)}"
         }
 
+'''
 def analyze_phantom_slice(file_path, display_figures=True, progress_callback=None):
     """
     Analyze a single ACR phantom slice
@@ -385,7 +386,7 @@ def analyze_phantom_slice(file_path, display_figures=True, progress_callback=Non
             "status": "error",
             "message": f"Error analyzing DICOM file: {str(e)}"
         }
-
+'''
 
 def analyze_phantom_group(file_paths, display_figures=True, progress_callback=None):
     """
