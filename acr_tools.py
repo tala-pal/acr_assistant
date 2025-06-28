@@ -127,89 +127,6 @@ def load_dicom_directory(directory_path, progress_callback=None):
             "message": f"Error loading DICOM files: {str(e)}"
         }
 
-'''
-def read_dicom_headers(directory_path):
-    """
-    Load DICOM files from a directory and extract its headers
-    
-    Args:
-        directory_path: Path to directory containing DICOM files
-        
-    Returns:
-        Dictionary with headers and file paths
-    """
-    try:
-        # Check if directory exists
-        if not os.path.exists(directory_path):
-            return {
-                "status": "error",
-                "message": f"Directory not found: {directory_path}"
-            }
-                        
-        dicom_files = []
-        for file in os.listdir(directory_path):
-            if file.endswith('.dcm'):
-                dicom_files.append(os.path.join(directory_path, file))
-                
-        if not dicom_files:
-            return {
-                "status": "error",
-                "message": f"No DICOM files found in {directory_path}"
-            }
-            
-        # Sort files by name to ensure they're in the correct order
-        dicom_files.sort()
-        
-        # Read the first file to get metadata
-        try:
-            first_dicom = pydicom.dcmread(dicom_files[0])
-        except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Error reading first DICOM file: {str(e)}"
-            }
-        
-        # Extract metadata
-        try:
-            scan_date = first_dicom.StudyDate if hasattr(first_dicom, 'StudyDate') else "Unknown"
-            slice_thickness = first_dicom.SliceThickness if hasattr(first_dicom, 'SliceThickness') else 0
-            
-            # Calculate number of slices for a 1cm thickness (used in ACR analysis)
-            slices_for_1cm = round(10 / slice_thickness) if slice_thickness > 0 else 0
-            
-            # Get image dimensions
-            rows = first_dicom.Rows if hasattr(first_dicom, 'Rows') else 0
-            columns = first_dicom.Columns if hasattr(first_dicom, 'Columns') else 0
-            image_dimensions = f"{rows}x{columns}"
-            
-        except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Error extracting metadata: {str(e)}"
-            }
-        
-        # Create result dictionary
-        result = {
-            "status": "success",
-            "message": f"Successfully loaded {len(dicom_files)} DICOM files",
-            "tags": {
-                "scan_date": scan_date,
-                "slice_thickness": slice_thickness,
-                "num_slices": len(dicom_files),
-                "image_dimensions": image_dimensions,
-                "slices_for_1cm": slices_for_1cm
-            }
-        }
-        
-        return result
-        
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": f"Error when extracting DICOM headers: {str(e)}"
-        }
-'''
-
 def display_slices(directory_path, rows=10, cols=10, figsize=(10, 10)):
     """
     Display multiple DICOM slicds in a grid layout with navigation between pages.
@@ -293,100 +210,6 @@ def display_slices(directory_path, rows=10, cols=10, figsize=(10, 10)):
             "status": "error",
             "message": f"Error when displaying slices: {str(e)}"
         }
-
-'''
-def analyze_phantom_slice(file_path, display_figures=True, progress_callback=None):
-    """
-    Analyze a single ACR phantom slice
-    
-    Args:
-        file_path: Path to the DICOM file
-        display_figures: Whether to generate visualization figures
-        progress_callback: Optional function to report progress
-        
-    Returns:
-        Dictionary with analysis results
-    """
-    try:
-        if progress_callback:
-            progress_callback(f"Loading DICOM file: {os.path.basename(file_path)}", 0)
-        
-        # Check if file exists
-        if not os.path.exists(file_path):
-            return {
-                "status": "error", 
-                "message": f"File not found: {file_path}"
-            }
-        
-        # Load the DICOM file
-        dicom = pydicom.dcmread(file_path)
-        
-        if progress_callback:
-            progress_callback("Extracting pixel data", 10)
-            
-        # Get pixel data
-        pixel_array = dicom.pixel_array
-        
-        if progress_callback:
-            progress_callback("Analyzing image data", 40)
-            
-        # Basic image statistics
-        min_val = np.min(pixel_array)
-        max_val = np.max(pixel_array)
-        mean_val = np.mean(pixel_array)
-        std_val = np.std(pixel_array)
-        
-        # More advanced analysis would go here in a real implementation
-        # This is a placeholder for actual ACR phantom analysis
-        
-        # Create figure for visualization if requested
-        figure_data = None
-        if display_figures:
-            if progress_callback:
-                progress_callback("Generating visualization", 70)
-                
-            # Create a simple figure showing the slice
-            plt.figure(figsize=(10, 8))
-            plt.imshow(pixel_array, cmap='gray')
-            plt.colorbar(label='Pixel Value')
-            plt.title(f"ACR Phantom Slice: {os.path.basename(file_path)}")
-            
-            # Convert figure to base64 string
-            buf = io.BytesIO()
-            plt.savefig(buf, format='png')
-            buf.seek(0)
-            figure_data = base64.b64encode(buf.read()).decode('utf-8')
-            plt.close()
-            
-        if progress_callback:
-            progress_callback("Building results", 90)
-            
-        # Create result dictionary
-        result = {
-            "status": "success",
-            "message": f"Successfully analyzed {os.path.basename(file_path)}",
-            "statistics": {
-                "min": float(min_val),
-                "max": float(max_val),
-                "mean": float(mean_val),
-                "std": float(std_val)
-            }
-        }
-
-        if progress_callback:
-            progress_callback("Complete", 100)
-            
-        return result
-        
-    except Exception as e:
-        if progress_callback:
-            progress_callback(f"Error: {str(e)}", -1)
-            
-        return {
-            "status": "error",
-            "message": f"Error analyzing DICOM file: {str(e)}"
-        }
-'''
 
 def analyze_phantom_group(file_paths, display_figures=True, progress_callback=None):
     """
@@ -536,5 +359,9 @@ if __name__ == "__main__":
         # If you want to display the image
         if 'figure' in result:
             print("\nFigure was generated. You can display it using appropriate methods.")
+
+    
+
+
     else:
         print(f"\nError details:\n{result.get('traceback', 'No traceback available')}")
