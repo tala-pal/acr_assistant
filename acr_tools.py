@@ -498,7 +498,6 @@ def handle_tool_call(tool_name, **kwargs):
     """
     tools = {
         "load_dicom_directory": load_dicom_directory,
-        #"read_dicom_headers": read_dicom_headers,
         "display_slices": display_slices,
         "analyze_phantom_slice": analyze_phantom_slice,
         "analyze_phantom_group": analyze_phantom_group
