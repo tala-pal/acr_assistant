@@ -68,9 +68,6 @@ and analyze groups of slices. Guide the user through the analysis process step b
         # Log user message
         self.logger.info(f"User: {user_message}")
         
-        # Reset progress tracking for new request
-        self.current_progress = []
-        
         # Add user message to conversation history
         self.messages.append({"role": "user", "content": user_message})
         
@@ -233,17 +230,6 @@ and analyze groups of slices. Guide the user through the analysis process step b
                 else:
                     assistant_response = "Executing the requested tool..."
                 
-                # Define progress callback function
-                def update_progress(message, percentage):
-                    progress_info = f"[{percentage}%] {message}"
-                    print(progress_info)  # Display in console
-                    self.logger.info(f"Tool Progress: {progress_info}")
-                    
-                    # Store progress updates to show to the user
-                    if not hasattr(self, 'current_progress'):
-                        self.current_progress = []
-                    self.current_progress.append(progress_info)
-                
                 # Process the tool call
                 from acr_tools import handle_tool_call
                 
@@ -339,11 +325,6 @@ and analyze groups of slices. Guide the user through the analysis process step b
                     # Add error to the response
                     assistant_response += f"\n\nError getting follow-up response: {str(e)}"
             
-            # Return the response text with any progress updates
-            if hasattr(self, 'current_progress') and self.current_progress:
-                # Format progress updates to display to the user
-                progress_text = "\n\nProgress Updates:\n" + "\n".join(self.current_progress)
-                assistant_response += progress_text
             
             return assistant_response
                 

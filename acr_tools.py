@@ -8,27 +8,20 @@ import base64
 import time
 from math import ceil
 
-def load_dicom_directory(directory_path, progress_callback=None):
+def load_dicom_directory(directory_path):
     """
     Load DICOM files from a directory and extract metadata
     
     Args:
         directory_path: Path to directory containing DICOM files
-        progress_callback: Optional function to report progress
         
     Returns:
         Dictionary with metadata and file paths
     """
-    print(f"load_dicom_directory called with progress_callback: {progress_callback is not None}")
-    try:
-        #if progress_callback:
-        #    progress_callback(f"Starting to scan directory: {directory_path}", 0)
-            
+    print(f"load_dicom_directory called")
+    try:            
         # Check if directory exists
-        if not os.path.exists(directory_path):
-            #if progress_callback:
-            #    progress_callback(f"Error: Directory not found: {directory_path}", -1)
-                
+        if not os.path.exists(directory_path):                
             return {
                 "status": "error",
                 "message": f"Directory not found: {directory_path}"
@@ -38,14 +31,8 @@ def load_dicom_directory(directory_path, progress_callback=None):
         for file in os.listdir(directory_path):
             if file.endswith('.dcm'):
                 dicom_files.append(os.path.join(directory_path, file))
-                # Update progress more frequently for better feedback
-                #if progress_callback and len(dicom_files) % 10 == 0:
-                #    progress_callback(f"Found {len(dicom_files)} DICOM files so far...", 40)
                 
         if not dicom_files:
-            #if progress_callback:
-            #    progress_callback(f"Error: No DICOM files found in {directory_path}", -1)
-                
             return {
                 "status": "error",
                 "message": f"No DICOM files found in {directory_path}"
@@ -55,25 +42,15 @@ def load_dicom_directory(directory_path, progress_callback=None):
         dicom_files.sort()
         
         # Read the first file to get metadata
-        #if progress_callback:
-        #    progress_callback(f"Reading metadata from first file: {os.path.basename(dicom_files[0])}", 60)
-            
         try:
             first_dicom = pydicom.dcmread(dicom_files[0])
-            #if progress_callback:
-            #    progress_callback("Successfully read first DICOM file", 80)
         except Exception as e:
-            #if progress_callback:
-            #    progress_callback(f"Error reading first DICOM file: {str(e)}", -1)
             return {
                 "status": "error",
                 "message": f"Error reading first DICOM file: {str(e)}"
             }
         
         # Extract metadata
-        #if progress_callback:
-        #    progress_callback("Extracting common metadata", 90)
-            
         try:
             scan_date = first_dicom.StudyDate if hasattr(first_dicom, 'StudyDate') else "Unknown"
             slice_thickness = first_dicom.SliceThickness if hasattr(first_dicom, 'SliceThickness') else 0
@@ -85,20 +62,12 @@ def load_dicom_directory(directory_path, progress_callback=None):
             rows = first_dicom.Rows if hasattr(first_dicom, 'Rows') else 0
             columns = first_dicom.Columns if hasattr(first_dicom, 'Columns') else 0
             image_dimensions = f"{rows}x{columns}"
-            
-            #if progress_callback:
-            #    progress_callback(f"Extracted metadata: {rows}x{columns}, {slice_thickness}mm slices", 95)
         except Exception as e:
-            #if progress_callback:
-            #    progress_callback(f"Error extracting metadata: {str(e)}", -1)
             return {
                 "status": "error",
                 "message": f"Error extracting metadata: {str(e)}"
             }
         
-        #if progress_callback:
-        #    progress_callback("Building results", 99)
-            
         # Create result dictionary
         result = {
             "status": "success",
@@ -112,16 +81,10 @@ def load_dicom_directory(directory_path, progress_callback=None):
             },
             "file_paths": dicom_files
         }
-        
-        #if progress_callback:
-        #    progress_callback("Complete! Ready for analysis.", 100)
             
         return result
         
     except Exception as e:
-        if progress_callback:
-            progress_callback(f"Error: {str(e)}", -1)
-            
         return {
             "status": "error",
             "message": f"Error loading DICOM files: {str(e)}"
@@ -211,22 +174,18 @@ def display_slices(directory_path, rows=10, cols=10, figsize=(10, 10)):
             "message": f"Error when displaying slices: {str(e)}"
         }
 
-def analyze_phantom_group(file_paths, display_figures=True, progress_callback=None):
+def analyze_phantom_group(file_paths, display_figures=True):
     """
     Analyze a group of ACR phantom slices by summing them
     
     Args:
         file_paths: List of paths to DICOM files to analyze as a group
         display_figures: Whether to generate visualization figures
-        progress_callback: Optional function to report progress
         
     Returns:
         Dictionary with analysis results
     """
     try:
-        if progress_callback:
-            progress_callback(f"Preparing to analyze {len(file_paths)} slices", 5)
-            
         # Check if all files exist
         missing_files = [f for f in file_paths if not os.path.exists(f)]
         if missing_files:
@@ -240,15 +199,8 @@ def analyze_phantom_group(file_paths, display_figures=True, progress_callback=No
         total_files = len(file_paths)
         
         for i, file_path in enumerate(file_paths):
-            if progress_callback:
-                progress_percentage = 10 + (i / total_files * 40)  # Progress from 10% to 50%
-                progress_callback(f"Loading file {i+1}/{total_files}: {os.path.basename(file_path)}", int(progress_percentage))
-                
             dicom = pydicom.dcmread(file_path)
             pixel_arrays.append(dicom.pixel_array)
-            
-        if progress_callback:
-            progress_callback("Combining slice data", 60)
             
         # Sum the pixel arrays
         summed_array = np.sum(pixel_arrays, axis=0)
@@ -260,26 +212,14 @@ def analyze_phantom_group(file_paths, display_figures=True, progress_callback=No
         std_val = np.std(summed_array)
         
         # Create figure for visualization if requested
-        figure_data = None
         if display_figures:
-            if progress_callback:
-                progress_callback("Generating visualization", 80)
-                
             # Create a simple figure showing the summed slices
             plt.figure(figsize=(10, 8))
             plt.imshow(summed_array, cmap='gray')
             plt.colorbar(label='Summed Pixel Value')
             plt.title(f"Summed ACR Phantom: {len(file_paths)} slices")
-            
-            # Convert figure to base64 string
-            buf = io.BytesIO()
-            plt.savefig(buf, format='png')
-            buf.seek(0)
-            figure_data = base64.b64encode(buf.read()).decode('utf-8')
+            plt.savefig('./analyze.png')
             plt.close()
-            
-        if progress_callback:
-            progress_callback("Building results", 90)
             
         # Create result dictionary
         result = {
@@ -294,15 +234,9 @@ def analyze_phantom_group(file_paths, display_figures=True, progress_callback=No
             "num_slices": len(file_paths)
         }
             
-        if progress_callback:
-            progress_callback("Complete", 100)
-            
         return result
         
     except Exception as e:
-        if progress_callback:
-            progress_callback(f"Error: {str(e)}", -1)
-            
         return {
             "status": "error",
             "message": f"Error analyzing DICOM group: {str(e)}"
@@ -341,27 +275,38 @@ if __name__ == "__main__":
     dir_path = "/Users/tamir/workspace/acr_assistant/012025"  # Replace with your actual file path
     
     # Run the function
-    result = load_dicom_directory(dir_path)
+    result_load = load_dicom_directory(dir_path)
     
     # Print the results
-    print(f"Analysis status: {result['status']}")
-    print(f"Message: {result['message']}")
+    print(f"Analysis status: {result_load['status']}")
+    print(f"Message: {result_load['message']}")
     
-    if result['status'] == 'success':
+    if result_load['status'] == 'success':
         print("\nMetadata:")
-        for key, value in result['metadata'].items():
+        for key, value in result_load['metadata'].items():
             print(f"  {key}: {value}")
         
         print("\nResults:")
-        for key, value in result.items():
+        for key, value in result_load.items():
+            print(f"  {key}: {value}")
+    else:
+        print(f"\nError details:\n{result_load.get('traceback', 'No traceback available')}")
+
+
+    files = ['/Users/tamir/workspace/acr_assistant/012025/BrainMACQ001_PT113.dcm',
+             '/Users/tamir/workspace/acr_assistant/012025/BrainMACQ001_PT114.dcm',
+             '/Users/tamir/workspace/acr_assistant/012025/BrainMACQ001_PT115.dcm',
+             '/Users/tamir/workspace/acr_assistant/012025/BrainMACQ001_PT116.dcm',
+             '/Users/tamir/workspace/acr_assistant/012025/BrainMACQ001_PT117.dcm']
+    result_analyze = analyze_phantom_group(files)
+
+    if result_analyze['status'] == 'success':
+        print("\nMetadata:")
+        for key, value in result_analyze['statistics'].items():
             print(f"  {key}: {value}")
         
-        # If you want to display the image
-        if 'figure' in result:
-            print("\nFigure was generated. You can display it using appropriate methods.")
-
-    
-
-
+        print("\nResults:")
+        for key, value in result_analyze.items():
+            print(f"  {key}: {value}")
     else:
-        print(f"\nError details:\n{result.get('traceback', 'No traceback available')}")
+        print(f"\nError details:\n{result_analyze.get('traceback', 'No traceback available')}")
