@@ -145,24 +145,6 @@ and analyze groups of slices. Guide the user through the analysis process step b
                         }
                     },
                     {
-                        "name": "analyze_phantom_slice",
-                        "description": "Analyze a single ACR phantom slice",
-                        "input_schema": {
-                            "type": "object",
-                            "properties": {
-                                "file_path": {
-                                    "type": "string",
-                                    "description": "Path to the DICOM file"
-                                },
-                                "display_figures": {
-                                    "type": "boolean",
-                                    "description": "Whether to generate visualization figures"
-                                }
-                            },
-                            "required": ["file_path"]
-                        }
-                    },
-                    {
                         "name": "analyze_phantom_group",
                         "description": "Analyze a group of ACR phantom slices by summing them",
                         "input_schema": {

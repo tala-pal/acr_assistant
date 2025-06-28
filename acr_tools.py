@@ -500,7 +500,6 @@ def handle_tool_call(tool_name, **kwargs):
     tools = {
         "load_dicom_directory": load_dicom_directory,
         "display_slices": display_slices,
-        "analyze_phantom_slice": analyze_phantom_slice,
         "analyze_phantom_group": analyze_phantom_group
     }
     
