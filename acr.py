@@ -692,16 +692,14 @@ def analyze_acr_phantom(dicom_series, display_figures=True, **kwargs):
     results['suv_calculated'] = suv_info['suv_calculated']
     if suv_info['suv_calculated']:
         results['suv_info'] = suv_info
-    
-    # Get pixel spacing in mm
-    pixel_spacing = slice_data.PixelSpacing[0]  # Assuming square pixels
-    
+        
     # Find phantom center
     center_y, center_x = find_phantom_center(suv_data)
     if center_y is None:
         raise ValueError("Could not find phantom center")
     
     # 1. Draw background ROI in center (6-7 cm diameter)
+    pixel_spacing = slice_data.PixelSpacing[0]  # Get pixel spacing in mm.  Assuming square pixels
     bg_diameter_mm = 65  # 6.5 cm diameter (average of 6-7 cm)
     bg_radius_pixels = int(bg_diameter_mm / (2 * pixel_spacing))
     background_mask = draw_circular_roi(suv_data, (center_y, center_x), bg_radius_pixels)
