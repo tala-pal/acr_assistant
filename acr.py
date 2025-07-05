@@ -100,8 +100,6 @@ def find_phantom_center(image, threshold=None):
     cy, cx = ndimage.center_of_mass(phantom_mask)
     return int(cy), int(cx)
 
-
-
 def find_hot_cylinder_25mm(image):
     """
     Find the 25mm hot cylinder using geometric properties rather than just max values.
@@ -364,7 +362,6 @@ def calculate_suv(dicom_slice, pixel_data):
         print(f"Could not calculate SUV: {e}")
         print("Using raw pixel values instead.")
         return pixel_data, suv_info
-
 
 def find_all_hot_cylinders(image, center_y, center_x, pixel_spacing, display_debug=False):
     """
@@ -1269,7 +1266,8 @@ def main(dicom_directory):
 
 if __name__ == "__main__":
     # Hardcode your DICOM directory path here
-    dicom_directory = r"P:\My_Projects\ACR\omni\012025"
+    #dicom_directory = r"P:\My_Projects\ACR\omni\012025"
+    dicom_directory = r"./012025"
     
     # Run the analysis
     main(dicom_directory)
