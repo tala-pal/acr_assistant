@@ -185,6 +185,43 @@ def analyze_phantom_group(file_paths, display_figures=True):
     Returns:
         Dictionary with analysis results
     """
+
+    """  
+    TODO 
+    1. Sum slices as it happens below. Need to add the rescale 
+    # Apply rescale slope and intercept if available
+    rescale_slope = getattr(slice_data, 'RescaleSlope', 1.0)
+    rescale_intercept = getattr(slice_data, 'RescaleIntercept', 0.0)
+    pixel_data = pixel_data * rescale_slope + rescale_intercept
+   
+    2. suv
+    suv_data, suv_info = calculate_suv(slice_data, pixel_data)
+
+    3. Find Centers 
+    # Find phantom center
+    center_y, center_x = find_phantom_center(suv_data)
+    if center_y is None:
+        raise ValueError("Could not find phantom center")
+
+    4. # Draw background ROI in center (6-7 cm diameter)
+    pixel_spacing = slice_data.PixelSpacing[0]  # Get pixel spacing in mm.  Assuming square pixels
+    bg_diameter_mm = 65  # 6.5 cm diameter (average of 6-7 cm)
+    bg_radius_pixels = int(bg_diameter_mm / (2 * pixel_spacing))
+    background_mask = draw_circular_roi(suv_data, (center_y, center_x), bg_radius_pixels)
+    background_mean = np.mean(suv_data[background_mask])
+    background_max = np.max(suv_data[background_mask])
+    results['background_mean'] = background_mean
+    results['background_max'] = background_max
+    results['bg_diameter_mm'] = bg_diameter_mm
+    
+    # 5. Find all hot cylinders using the new function
+    # Enable debug visualization if requested
+   # In analyze_acr_phantom function, replace:
+    known_cylinders = find_all_hot_cylinders(suv_data, center_y, center_x, pixel_spacing, 
+                                       display_debug=display_figures)
+    
+
+    """
     try:
         # Check if all files exist
         missing_files = [f for f in file_paths if not os.path.exists(f)]
@@ -241,7 +278,6 @@ def analyze_phantom_group(file_paths, display_figures=True):
             "status": "error",
             "message": f"Error analyzing DICOM group: {str(e)}"
         }
-
 
 def handle_tool_call(tool_name, **kwargs):
     """
